@@ -1,0 +1,175 @@
+
+        
+        
+            
+            
+            //------------------select---------------------------//
+            for(int i=0;i<job.size();i++)
+            {
+                float buffer_of_number_for_add=(float)1/job.at(i).machine_can_select.size();
+                float buffer_for_adding_to_one=0.00;
+                for(int j=0;j<=job.at(i).machine_can_select.size();j++)
+                {
+                    //cout<<buffer_for_adding_to_one<<" "<<job.at(i).select<<endl;;
+                    if(job.at(i).select>buffer_for_adding_to_one-buffer_of_number_for_add && job.at(i).select<=buffer_for_adding_to_one)
+                    {
+                        job.at(i).machine_selected=job.at(i).machine_can_select.at(j-1);
+                        //cout<<job.at(i).machine_selected<<" ";
+                        for(int k=0;k<EQP.size();k++)
+                        {
+                            if(job.at(i).machine_selected==EQP.at(k).EQP_ID && job.at(i).recipe==EQP.at(k).RECIPE)
+                            {
+                                job.at(i).process_time=EQP.at(k).process_time;
+                                //cout<<job.at(i).machine_selected<<" "<<job.at(i).process_time<<endl;
+                            }
+                        
+                        }
+                        machine.at(job.at(i).machine_selected-1).job_in_machine.push_back(job.at(i).job_name);
+                        machine.at(job.at(i).machine_selected-1).process_time.push_back(job.at(i).process_time);
+                        machine.at(job.at(i).machine_selected-1).sort.push_back(job.at(i).sort);
+                        
+                        //cout<<buffer_for_adding_to_one<<" "<<job.at(i).select<<" "<<job.at(i).machine_selected<<endl;
+                        break;
+                    }
+                    buffer_for_adding_to_one+=buffer_of_number_for_add;
+                }
+                //cout<<endl;
+            }
+            /*int sum=0;
+            for(int i=0;i<machine.size();i++)
+            {
+                sum+=machine.at(i).job_in_machine.size();    
+            }
+            cout<<"Machine size in Choromosome"<<n<<":"<<sum<<endl;*/
+            //-------------------------------------sort-----------------------------//
+            /*for(int i=0;i<machine.size();i++)
+            {
+                cout<<"----"<<i<<"--------"<<endl;
+                for(int j=0;j<machine.at(i).job_in_machine.size()-1;j++)
+                {
+                    cout<<machine.at(i).job_in_machine.at(j)<<" "<<machine.at(i).sort.at(j)<<" "<<machine.at(i).process_time.at(j)<<endl;
+                }
+                cout<<endl;
+            }*/
+            for(int i=0;i<machine.size();i++)
+            {
+                //cout<<i<<":"<<machine.at(i).job_in_machine.size()<<endl;;
+                for(int j=0;j<machine.at(i).job_in_machine.size()-1;j++)
+                {
+                    for(int k=0;k<machine.at(i).job_in_machine.size()-j-1;k++)
+                    {
+                        if(machine.at(i).sort.at(k)<machine.at(i).sort.at(k+1))
+                        {
+                            float buff1=machine.at(i).sort.at(k);
+                            machine.at(i).sort.at(k)=machine.at(i).sort.at(k+1);
+                            machine.at(i).sort.at(k+1)=buff1;
+                            string buff2=machine.at(i).job_in_machine.at(k);
+                            machine.at(i).job_in_machine.at(k)=machine.at(i).job_in_machine.at(k+1);
+                            machine.at(i).job_in_machine.at(k+1)=buff2;
+                            int buff3=machine.at(i).process_time.at(k);
+                            machine.at(i).process_time.at(k)=machine.at(i).process_time.at(k+1);
+                            machine.at(i).process_time.at(k+1)=buff3;
+                        }
+                    }
+                    //cout<<machine.at(i).job_in_machine.at(j)+" ";
+                }
+            }
+            //-----------------------add setup time----------------------//
+            for(int i=0;i<machine.size();i++)
+            {
+                //cout<<"----"<<i<<"--------"<<endl;
+                for(int j=0;j<machine.at(i).job_in_machine.size()-1;j++)
+                {
+                    //cout<<machine.at(i).job_in_machine.at(j)<<" "<<machine.at(i).process_time.at(j)<<" ";
+                    machine.at(i).process_time.at(j)+=setuptime[stoi(machine.at(i).job_in_machine.at(j))-1][stoi(machine.at(i).job_in_machine.at(j+1))-1];
+                    //cout<<machine.at(i).process_time.at(j)<<endl;
+                }
+                //cout<<endl;
+            }
+            /*for(int i=0;i<machine.size();i++)
+            {
+                cout<<"----"<<i<<"--------"<<endl;
+                for(int j=0;j<machine.at(i).job_in_machine.size();j++)
+                {
+                    cout<<machine.at(i).job_in_machine.at(j)<<" "<<machine.at(i).sort.at(j)<<" "<<machine.at(i).process_time.at(j)<<endl;
+                }
+                cout<<endl;
+            }*/
+            //--------------------makespan----------------------//
+            for(int i=0;i<machine.size();i++)
+            {
+                //cout<<"Machine"<<i<<": ";
+                machine.at(i).makespan=0;
+                for(int j=0;j<machine.at(i).process_time.size();j++)
+                {
+                    machine.at(i).makespan+=machine.at(i).process_time.at(j);
+                }
+                //cout<<machine.at(i).makespan<<endl;
+            }
+            CHO.at(n).machine=machine;
+        }//cho
+        //---------------------sort choromosome------------------//
+        for(int i=0;i<CHO.size();i++)
+        {
+            int max=0;
+            for(int j=0;j<CHO.at(i).machine.size();j++)
+            {
+                if(max<CHO.at(i).machine.at(j).makespan)
+                    max=CHO.at(i).machine.at(j).makespan;
+            }
+            CHO.at(i).makespan=max;
+            
+        }
+        for(int i=0;i<CHO.size()-1;i++)
+        {
+            for(int j=0;j<CHO.size()-i-1;j++)
+            {
+                if(CHO.at(j).makespan>CHO.at(j+1).makespan)
+                {
+                    Choromosome buff;
+                    buff=CHO.at(j);
+                    CHO.at(j)=CHO.at(j+1);
+                    CHO.at(j+1)=buff;
+                }
+            }
+            
+        }
+        //----------------elite-----------------//
+        c=0;
+        while(c<CHOROMOSOME_NUMBER*MUTATING_RATE)
+        {
+            CHO.at(c).roulette=0.0;
+            c++;
+        }
+        //---------------rotary-----------------//
+        while(c<CHOROMOSOME_NUMBER)
+        {
+            float sum=0.0,rnd=0.0;
+            int j=1;
+            for(int i=c;i<(CHOROMOSOME_NUMBER*2)-1;i++)
+            {
+                CHO.at(i).roulette=j;
+                sum+=CHO.at(i).roulette;
+                if(CHO.at(i).makespan!=CHO.at(i+1).makespan)
+                    j++;
+                //cout<<CHO.at(i).roulette<<endl;
+            }
+            for(int i=c;i<CHOROMOSOME_NUMBER*2;i++)
+                CHO.at(i).roulette/=sum;
+            rnd=rand() / (RAND_MAX + 1.0);
+            sum=0.0;
+            for(int i=c;i<CHOROMOSOME_NUMBER*2;i++)
+            {
+                sum+=CHO.at(i).roulette;
+                if(rnd<sum)
+                {
+                    for(int j=0;j<JOB_NUMBER;j++)
+                    {
+                        CHO.at(c).value.at(j)=CHO.at(i).value.at(j);
+                    }
+                    break;
+                }
+            }
+            c++;
+        }
+        cout<<"Smallest Makespan: "<<CHO.at(0).makespan<<endl;
